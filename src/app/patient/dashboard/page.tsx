@@ -87,7 +87,7 @@ interface DetailedMedicalRecord extends MedicalRecord {
 }
 
 export default function PatientDashboard() {
-  const [activeTab, setActiveTab] = useState('health-status');
+  const [activeTab, setActiveTab] = useState('medical-history');
   const [showMedicalHistoryForm, setShowMedicalHistoryForm] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DetailedMedicalRecord | null>(null);
   
@@ -127,7 +127,7 @@ export default function PatientDashboard() {
   ]);
   
   // Function to add a new medical record
-  const addMedicalRecord = (record: Omit<MedicalRecord, 'id'>) => {
+  const addMedicalRecord = (record: Omit<DetailedMedicalRecord, 'id'>) => {
     setMedicalRecords([
       { id: medicalRecords.length + 1, ...record },
       ...medicalRecords
@@ -153,7 +153,6 @@ export default function PatientDashboard() {
   };
   
   const tabs = [
-    { id: 'health-status', label: 'Health Status', icon: <Activity className="w-4 h-4" /> },
     { id: 'medical-history', label: 'Medical History', icon: <ClipboardPlus className="w-4 h-4" /> },
     { id: 'appointments', label: 'Appointments', icon: <Calendar className="w-4 h-4" /> },
     { id: 'medications', label: 'Medications', icon: <Pill className="w-4 h-4" /> },
@@ -176,63 +175,65 @@ export default function PatientDashboard() {
     <div className="min-h-screen bg-gray-50">
       <PatientHeader patient={mockPatient} />
       
-      {/* Improved Patient Greeting and Health Status Summary */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-8 border-b">
+      {/* Improved Patient Greeting and Health Status Summary - Make responsive */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-6 md:py-8 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div className="mb-6 md:mb-0">
-              <h1 className="text-3xl font-bold">Good morning, {mockPatient.name}!</h1>
-              <p className="mt-2 text-blue-100">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="mb-4 md:mb-0">
+              <h1 className="text-2xl md:text-3xl font-bold">Good morning, {mockPatient.name}!</h1>
+              <p className="mt-1 md:mt-2 text-blue-100 text-sm md:text-base">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
               
               {mockPatient.nextAppointment && (
-                <div className="mt-4 flex items-center bg-white/10 rounded-lg px-4 py-2 backdrop-blur-sm">
-                  <Clock className="w-5 h-5 mr-2" />
-                  <span>Your next appointment with {mockPatient.nextAppointment.doctorName} is on {mockPatient.nextAppointment.date}</span>
+                <div className="mt-3 md:mt-4 flex items-center bg-white/10 rounded-lg px-3 py-2 text-sm md:text-base backdrop-blur-sm">
+                  <Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0" />
+                  <span className="line-clamp-2">Your next appointment with {mockPatient.nextAppointment.doctorName} is on {mockPatient.nextAppointment.date}</span>
                 </div>
               )}
             </div>
             
-            {/* Updated Health Status Card */}
-            <div className="bg-white text-gray-900 rounded-xl shadow-lg p-4">
-              <div className="flex items-center mb-4">
-                <Heart className="w-6 h-6 text-red-500 mr-2" />
-                <span className="text-lg font-semibold">Your Health Status</span>
+            {/* Updated Health Status Card - Make responsive */}
+            <div className="bg-white text-gray-900 rounded-xl shadow-lg p-3 md:p-4 w-full md:w-auto">
+              <div className="flex items-center mb-3 md:mb-4">
+                <Heart className="w-5 h-5 md:w-6 md:h-6 text-red-500 mr-2" />
+                <span className="text-base md:text-lg font-semibold">Your Health Status</span>
               </div>
               
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3 md:gap-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700">Overall Health:</span>
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                  <span className="text-sm md:text-base text-gray-700">Overall Health:</span>
+                  <span className="px-2 md:px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs md:text-sm font-medium">
                     Good
                   </span>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700">Risk Level:</span>
-                  <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
+                  <span className="text-sm md:text-base text-gray-700">Risk Level:</span>
+                  <span className="px-2 md:px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs md:text-sm font-medium">
                     Moderate
                   </span>
                 </div>
                 
-                <button className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center">
-                  <AlertCircle className="w-4 h-4 mr-2" />
-                  View Potential Risks
-                </button>
-                
-                <button className="w-full bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-lg text-sm font-medium flex items-center justify-center">
-                  <Activity className="w-4 h-4 mr-2" />
-                  View Detailed Health Metrics
-                </button>
+                <div className="flex flex-col sm:flex-row gap-2 mt-1">
+                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 md:py-2 px-3 md:px-4 rounded-lg text-xs md:text-sm font-medium flex items-center justify-center">
+                    <AlertCircle className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
+                    View Potential Risks
+                  </button>
+                  
+                  <button className="w-full bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 py-1.5 md:py-2 px-3 md:px-4 rounded-lg text-xs md:text-sm font-medium flex items-center justify-center">
+                    <Activity className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
+                    View Health Metrics
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
       
-      {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Main Content Area - Make responsive */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
         {/* Tab Navigation */}
         <TabNavigation 
           tabs={tabs} 
@@ -248,147 +249,44 @@ export default function PatientDashboard() {
             animate="visible"
             exit="hidden"
             variants={tabVariants}
-            className="mt-6"
+            className="mt-4 md:mt-6"
           >
-            {/* Health Status Content */}
-            {activeTab === 'health-status' && (
-              <div className="space-y-6">
-                {/* Vitals Overview */}
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-                  <div className="border-b border-gray-100 px-6 py-4 bg-blue-50">
-                    <h2 className="text-lg font-semibold text-blue-800 flex items-center">
-                      <Activity className="w-5 h-5 mr-2 text-blue-600" />
-                      Your Health Overview
-                    </h2>
-                  </div>
-                  <div className="p-6">
-                    <VitalsDisplay vitals={mockPatient.vitals} />
-                  </div>
-                </div>
-
-                {/* Test Results */}
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-                  <div className="border-b border-gray-100 px-6 py-4 bg-blue-50">
-                    <h2 className="text-lg font-semibold text-blue-800 flex items-center">
-                      <FileSpreadsheet className="w-5 h-5 mr-2 text-blue-600" />
-                      Recent Test Results
-                    </h2>
-                  </div>
-                  <div className="p-6">
-                    <div className="space-y-3">
-                      {mockPatient.testResults.map((test, index) => (
-                        <div key={index} className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50/30 transition-all">
-                          <div>
-                            <p className="font-medium text-gray-900">{test.name}</p>
-                            <div className="flex items-center text-sm text-gray-600 mt-1">
-                              <Calendar className="w-3.5 h-3.5 mr-1 text-blue-600" />
-                              {test.date}
-                              <span className="mx-2">•</span>
-                              <User className="w-3.5 h-3.5 mr-1 text-blue-600" />
-                              {test.doctor}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                              test.status === "Normal" 
-                                ? "bg-green-100 text-green-800 border border-green-200" 
-                                : "bg-amber-100 text-amber-800 border border-amber-200"
-                            }`}>
-                              {test.status}
-                            </span>
-                            <button className="p-2 rounded-full text-blue-700 hover:bg-blue-100">
-                              <Download className="w-4 h-4" />
-                            </button>
-                            <button className="p-2 rounded-full text-blue-700 hover:bg-blue-100">
-                              <Share2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                      <button className="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium">
-                        View All Test Results 
-                    </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Medical History Summary */}
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-                  <div className="border-b border-gray-100 px-6 py-4 bg-blue-50">
-                    <div className="flex justify-between items-center">
-                      <h2 className="text-lg font-semibold text-blue-800 flex items-center">
-                        <ClipboardPlus className="w-5 h-5 mr-2 text-blue-600" />
-                        Medical History
-                    </h2>
-                      <button 
-                        onClick={() => setShowMedicalHistoryForm(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center text-sm"
-                      >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Update Medical History
-                      </button>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <h3 className="font-medium text-gray-900 mb-2">Allergies</h3>
-                        <p className="text-gray-700">Penicillin, Peanuts</p>
-                      </div>
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <h3 className="font-medium text-gray-900 mb-2">Chronic Conditions</h3>
-                        <p className="text-gray-700">Hypertension</p>
-                        </div>
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <h3 className="font-medium text-gray-900 mb-2">Past Surgeries</h3>
-                        <p className="text-gray-700">Appendectomy (2015)</p>
-                        </div>
-                      <div className="border border-gray-200 rounded-lg p-4">
-                        <h3 className="font-medium text-gray-900 mb-2">Family History</h3>
-                        <p className="text-gray-700">Diabetes, Heart Disease</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Updated Medical History Timeline */}
+            {/* Updated Medical History Timeline - Make responsive */}
             {activeTab === 'medical-history' && (
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-                  <div className="border-b border-gray-100 px-6 py-4 bg-blue-50 flex justify-between items-center">
-                    <h2 className="text-lg font-semibold text-blue-800 flex items-center">
-                      <ClipboardPlus className="w-5 h-5 mr-2 text-blue-600" />
-                      Medical History
-                    </h2>
-                    <div className="flex items-center gap-2">
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder="Search medical records..."
-                          className="pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                  <div className="border-b border-gray-100 px-4 md:px-6 py-3 md:py-4 bg-blue-50">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <h2 className="text-base md:text-lg font-semibold text-blue-800 flex items-center">
+                        <ClipboardPlus className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600 flex-shrink-0" />
+                        Medical History
+                      </h2>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative w-full sm:w-auto">
+                          <input
+                            type="text"
+                            placeholder="Search records..."
+                            className="pl-8 md:pl-10 pr-3 md:pr-4 py-1.5 md:py-2 text-xs md:text-sm border border-gray-200 rounded-lg w-full sm:w-48 md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          <Search className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2" />
+                        </div>
+                        <select className="text-xs md:text-sm border border-gray-200 rounded-lg px-2 md:px-3 py-1.5 md:py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                          <option>All</option>
+                          <option>2023</option>
+                          <option>2022</option>
+                          <option>2021</option>
+                        </select>
+                        <button 
+                          onClick={() => setShowMedicalHistoryForm(true)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg flex items-center text-xs md:text-sm font-medium whitespace-nowrap"
+                        >
+                          <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />
+                          Add Record
+                        </button>
                       </div>
-                      <select className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option>All</option>
-                        <option>2023</option>
-                        <option>2022</option>
-                        <option>2021</option>
-                      </select>
-                      <button 
-                        onClick={() => setShowMedicalHistoryForm(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium"
-                      >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add Medical Record
-                      </button>
                     </div>
                   </div>
-                  <div className="p-6">
+                  <div className="p-4 md:p-6">
                     {medicalRecords.length === 0 ? (
                       <div className="text-center py-6 text-gray-500">
                         No medical records yet. Click "Add Medical Record" to add your first entry.
@@ -448,8 +346,8 @@ export default function PatientDashboard() {
                     )}
                   </div>
                 </div>
-                <div className="text-center mt-4">
-                  <button className="text-blue-600 hover:underline">
+                <div className="text-center mt-3 md:mt-4">
+                  <button className="text-blue-600 hover:underline text-sm md:text-base">
                     Export Medical History
                   </button>
                 </div>
@@ -671,13 +569,179 @@ export default function PatientDashboard() {
         </AnimatePresence>
       </main>
 
-      {/* Medical History Form Modal */}
+      {/* Medical History Form Modal - Updated to match record contents */}
       <AnimatePresence>
         {showMedicalHistoryForm && (
-          <MedicalHistoryForm 
-            onClose={() => setShowMedicalHistoryForm(false)}
-            onAddRecord={addMedicalRecord}
-          />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowMedicalHistoryForm(false)}
+          >
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              className="bg-white rounded-xl shadow-xl w-full max-w-3xl overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center border-b p-4 bg-blue-50">
+                <h2 className="text-lg font-semibold text-blue-800 flex items-center">
+                  <ClipboardPlus className="w-5 h-5 mr-2 text-blue-600" />
+                  Add Medical Record
+                </h2>
+                <button 
+                  onClick={() => setShowMedicalHistoryForm(false)}
+                  className="p-2 rounded-full hover:bg-blue-100"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                // Get the form data and call addMedicalRecord
+                const formData = new FormData(e.target as HTMLFormElement);
+                addMedicalRecord({
+                  title: formData.get('title') as string,
+                  date: formData.get('date') as string,
+                  doctor: formData.get('doctor') as string,
+                  details: formData.get('details') as string,
+                  // Add additional fields to match DetailedMedicalRecord
+                  hospital: formData.get('hospital') as string,
+                  contactInfo: formData.get('contactInfo') as string,
+                  followUp: formData.get('followUp') as string,
+                });
+                setShowMedicalHistoryForm(false);
+              }}>
+                <div className="p-4 md:p-6 max-h-[70vh] overflow-y-auto">
+                  <div className="space-y-4 md:space-y-6">
+                    {/* Record Title */}
+                    <div>
+                      <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                        Record Title*
+                      </label>
+                      <input 
+                        id="title"
+                        name="title"
+                        type="text"
+                        required
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="E.g., Annual Physical, Surgery, Vaccination"
+                      />
+                    </div>
+
+                    {/* Date */}
+                    <div>
+                      <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                        Date*
+                      </label>
+                      <input 
+                        id="date"
+                        name="date"
+                        type="date"
+                        defaultValue={new Date().toISOString().split('T')[0]}
+                        required
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                      />
+                    </div>
+
+                    {/* Doctor */}
+                    <div>
+                      <label htmlFor="doctor" className="block text-sm font-medium text-gray-700 mb-1">
+                        Doctor/Provider*
+                      </label>
+                      <input 
+                        id="doctor"
+                        name="doctor"
+                        type="text"
+                        required
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="Dr. Name (Speciality)"
+                      />
+                    </div>
+                    
+                    {/* Hospital - New field */}
+                    <div>
+                      <label htmlFor="hospital" className="block text-sm font-medium text-gray-700 mb-1">
+                        Hospital/Clinic
+                      </label>
+                      <input 
+                        id="hospital"
+                        name="hospital"
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="Hospital or clinic name"
+                      />
+                    </div>
+                    
+                    {/* Contact Info - New field */}
+                    <div>
+                      <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700 mb-1">
+                        Contact Info
+                      </label>
+                      <input 
+                        id="contactInfo"
+                        name="contactInfo"
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="Address, phone number, etc."
+                      />
+                    </div>
+                    
+                    {/* Follow Up - New field */}
+                    <div>
+                      <label htmlFor="followUp" className="block text-sm font-medium text-gray-700 mb-1">
+                        Follow-up Instructions
+                      </label>
+                      <input 
+                        id="followUp"
+                        name="followUp"
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="Any follow-up instructions"
+                      />
+                    </div>
+
+                    {/* Details */}
+                    <div>
+                      <label htmlFor="details" className="block text-sm font-medium text-gray-700 mb-1">
+                        Details*
+                      </label>
+                      <textarea 
+                        id="details"
+                        name="details"
+                        rows={4}
+                        required
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="Enter details about this medical record"
+                      />
+                    </div>
+                    
+                    {/* We could add UI for prescriptions, lab results and attachments here,
+                        but for simplicity we'll leave them out for now */}
+                  </div>
+                </div>
+                
+                <div className="border-t p-4 flex justify-end space-x-3">
+                  <button 
+                    type="button"
+                    onClick={() => setShowMedicalHistoryForm(false)}
+                    className="px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                  >
+                    Save Record
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
       
