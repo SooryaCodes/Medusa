@@ -120,27 +120,25 @@ export default function RegisterPage() {
           ))}
         </div>
       </div>
+
+      {/* Top Fixed Logo - Visible on all screen sizes */}
+      <div className="absolute top-0 left-0 w-full z-20 px-4 py-3 sm:py-4 flex items-center">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+            <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">Medusa</h1>
+        </div>
+      </div>
       
-      <div className="w-full flex flex-col-reverse lg:flex-row z-10">
-        {/* Left Section - Modern Feature Display - Hidden on mobile */}
+      <div className="w-full flex flex-col-reverse lg:flex-row z-10 mt-16 sm:mt-20">
+        {/* Left Section - Modern Feature Display */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="w-full lg:w-1/2 p-4 lg:py-12 lg:px-16 flex flex-col justify-center relative overflow-hidden hidden lg:flex"
+          className="w-full lg:w-1/2 p-4 lg:py-12 lg:px-8 xl:px-16 flex flex-col justify-center relative overflow-hidden hidden lg:flex"
         >
-          <motion.div 
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="flex items-center space-x-3 mb-12 lg:mb-16"
-          >
-            <div className="w-10 h-10 lg:w-12 lg:h-12 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/20">
-              <Shield className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
-            </div>
-            <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white">Medusa</h1>
-          </motion.div>
-
           {/* Main headline - both mobile and desktop */}
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
@@ -212,21 +210,13 @@ export default function RegisterPage() {
           </motion.div>
         </motion.div>
 
-        {/* Right Section - Streamlined Registration - Shown first on mobile */}
+        {/* Right Section - Streamlined Registration */}
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10 md:p-16 bg-gray-50"
+          className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-10 lg:p-16 bg-gray-50"
         >
-          {/* Mobile-only simplified header */}
-          <div className="flex items-center space-x-3 mb-6 lg:hidden">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">Medusa</h1>
-          </div>
-          
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -258,7 +248,7 @@ export default function RegisterPage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-xl border border-gray-100 p-6"
+                className="bg-white rounded-xl border border-gray-100 p-4 sm:p-6"
               >
                 <div className="flex items-center justify-center mb-6">
                   <div className="bg-blue-50 p-4 rounded-full">
@@ -272,7 +262,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
                 
-                <form onSubmit={verifyAadhaar} className="space-y-6">
+                <form onSubmit={verifyAadhaar} className="space-y-4 sm:space-y-6">
                   <div>
                     <label htmlFor="aadhaar" className="text-sm font-medium text-gray-700 block mb-1.5">
                       Aadhaar Number
@@ -287,7 +277,7 @@ export default function RegisterPage() {
                           const value = e.target.value.replace(/\D/g, '');
                           if (value.length <= 12) setAadhaarNumber(value);
                         }}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-gray-800 placeholder:text-gray-400"
+                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-gray-800 placeholder:text-gray-400 text-sm sm:text-base"
                         required
                       />
                       {aadhaarNumber.length > 0 && (
@@ -330,7 +320,7 @@ export default function RegisterPage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-xl border border-gray-100 p-6"
+                className="bg-white rounded-xl border border-gray-100 p-4 sm:p-6"
               >
                 <div className="text-center mb-6">
                   <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-50 mb-4">
@@ -342,8 +332,8 @@ export default function RegisterPage() {
                   </p>
                 </div>
                 
-                <form onSubmit={verifyOtp} className="space-y-6">
-                  <div className="flex justify-center gap-2">
+                <form onSubmit={verifyOtp} className="space-y-4 sm:space-y-6">
+                  <div className="flex justify-center gap-1 sm:gap-2">
                     {otp.map((digit, index) => (
                       <input
                         key={index}
@@ -354,7 +344,7 @@ export default function RegisterPage() {
                         value={digit}
                         onChange={(e) => handleOtpChange(index, e.target.value)}
                         onKeyDown={(e) => handleKeyDown(index, e)}
-                        className="h-12 w-10 text-center text-lg font-medium rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-gray-800"
+                        className="h-10 sm:h-12 w-8 sm:w-10 text-center text-lg font-medium rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-gray-800"
                         autoFocus={index === 0}
                       />
                     ))}
