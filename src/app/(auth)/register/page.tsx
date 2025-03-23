@@ -133,10 +133,10 @@ export default function RegisterPage() {
         aadharNumber:aadhaarNumber,
         otp: enteredOtp
       });
-      console.log(response.data)
-      if (response.data.token) {
+      alert(response.data.data.token)
+      if (response.data.data.token) {
         // Store the JWT token in a cookie
-        setCookie('patientToken', response.data.token, {
+        setCookie('patientToken', response.data.data.token, {
           maxAge: 30 * 24 * 60 * 60, // 30 days
           path: '/'
         });

@@ -78,6 +78,7 @@ export default function PatientDashboard() {
   const [activeTab, setActiveTab] = useState('appointments');
   const [showMedicalHistoryForm, setShowMedicalHistoryForm] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DetailedMedicalRecord | null>(null);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   
   const [medicalRecords, setMedicalRecords] = useState<DetailedMedicalRecord[]>([
     { 
@@ -357,7 +358,10 @@ export default function PatientDashboard() {
                       <button className="text-blue-600 bg-white border border-blue-300 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium">
                         View Past Appointments
                       </button>
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium">
+                      <button 
+                        onClick={() => setShowAppointmentModal(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium"
+                      >
                         <Plus className="w-4 h-4 mr-1" />
                         Schedule New Appointment
                       </button>
@@ -863,6 +867,217 @@ export default function PatientDashboard() {
                   </button>
                 </div>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Schedule New Appointment Modal */}
+      <AnimatePresence>
+        {showAppointmentModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 md:p-4"
+            onClick={() => setShowAppointmentModal(false)}
+          >
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              className="bg-white rounded-xl shadow-xl w-full max-w-3xl overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center border-b p-3 md:p-4 bg-blue-50">
+                <h2 className="text-base md:text-lg font-semibold text-blue-800 flex items-center">
+                  <Calendar className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2 text-blue-600" />
+                  Schedule New Appointment
+                </h2>
+                <button 
+                  onClick={() => setShowAppointmentModal(false)}
+                  className="p-1.5 md:p-2 rounded-full hover:bg-blue-100"
+                >
+                  <X className="w-4 h-4 md:w-5 md:h-5 text-gray-500" />
+                </button>
+              </div>
+              
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                // Handle appointment scheduling logic here
+                setShowAppointmentModal(false);
+              }}>
+                <div className="p-4 md:p-6 max-h-[70vh] overflow-y-auto">
+                  <div className="space-y-4 md:space-y-6">
+                    {/* Department/Specialty */}
+                    <div>
+                      <label htmlFor="specialty" className="block text-sm font-medium text-gray-700 mb-1">
+                        Specialty/Department*
+                      </label>
+                      <select 
+                        id="specialty"
+                        name="specialty"
+                        required
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Select specialty</option>
+                        <option value="cardiology">Cardiology</option>
+                        <option value="dermatology">Dermatology</option>
+                        <option value="neurology">Neurology</option>
+                        <option value="orthopedics">Orthopedics</option>
+                        <option value="pediatrics">Pediatrics</option>
+                        <option value="psychiatry">Psychiatry</option>
+                        <option value="general">General Practice</option>
+                      </select>
+                    </div>
+                    
+                    {/* Doctor Selection */}
+                    <div>
+                      <label htmlFor="doctor" className="block text-sm font-medium text-gray-700 mb-1">
+                        Select Doctor*
+                      </label>
+                      <div className="relative">
+                        <select 
+                          id="doctor"
+                          name="doctor"
+                          required
+                          className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select a doctor</option>
+                          <option value="dr-smith">Dr. John Smith</option>
+                          <option value="dr-patel">Dr. Priya Patel</option>
+                          <option value="dr-wilson">Dr. Sarah Wilson</option>
+                          <option value="dr-chen">Dr. David Chen</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    {/* Date Selection */}
+                    <div>
+                      <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                        Date*
+                      </label>
+                      <input 
+                        id="date"
+                        name="date"
+                        type="date"
+                        required
+                        min={new Date().toISOString().split('T')[0]}
+                        defaultValue={new Date().toISOString().split('T')[0]}
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                      />
+                    </div>
+                    
+                    {/* Available Time Slots */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Available Time Slots*
+                      </label>
+                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                          {["9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", 
+                            "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM"].map((time, index) => (
+                            <label key={index} className="flex items-center space-x-2 bg-white p-2 border rounded-md hover:border-blue-400 hover:bg-blue-50 cursor-pointer">
+                              <input 
+                                type="radio" 
+                                name="timeSlot" 
+                                value={time}
+                                required
+                                className="text-blue-600 focus:ring-blue-500" 
+                              />
+                              <span className="text-xs font-medium text-gray-700">{time}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Location - Just show this section since we only offer in-person */}
+                    <div className="p-4 rounded-lg bg-blue-50 border border-blue-100">
+                      <div className="flex items-center mb-2">
+                        <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+                          <Stethoscope className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">In-Person Visit</p>
+                          <p className="text-xs text-gray-500">City Medical Center, 123 Healthcare Ave</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-2">
+                        Please arrive 15 minutes before your appointment time. Bring your insurance card and ID.
+                      </p>
+                    </div>
+                    
+                    {/* Reason for Visit */}
+                    <div>
+                      <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">
+                        Reason for Visit*
+                      </label>
+                      <textarea 
+                        id="reason"
+                        name="reason"
+                        rows={3}
+                        required
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="Briefly describe your symptoms or reason for appointment"
+                      />
+                    </div>
+                    
+                    {/* Insurance Information */}
+                    <div>
+                      <label htmlFor="insurance" className="block text-sm font-medium text-gray-700 mb-1">
+                        Insurance Plan
+                      </label>
+                      <select 
+                        id="insurance"
+                        name="insurance"
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="bluecross">BlueCross Premium</option>
+                        <option value="aetna">Aetna Health</option>
+                        <option value="cigna">Cigna Insurance</option>
+                        <option value="self-pay">Self Pay</option>
+                      </select>
+                    </div>
+                    
+                    {/* Additional Notes */}
+                    <div>
+                      <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                        Additional Notes
+                      </label>
+                      <textarea 
+                        id="notes"
+                        name="notes"
+                        rows={2}
+                        className="w-full border border-gray-300 rounded-lg p-2 md:p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        placeholder="Any additional information for the doctor"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="border-t p-3 md:p-4 flex justify-between items-center">
+                  <div className="flex items-center text-sm text-blue-600">
+                    <Clock className="w-4 h-4 mr-1.5" />
+                    Estimated duration: 30 minutes
+                  </div>
+                  <div className="flex space-x-2 md:space-x-3">
+                    <button 
+                      type="button"
+                      onClick={() => setShowAppointmentModal(false)}
+                      className="px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      className="px-2.5 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs md:text-sm"
+                    >
+                      Schedule Appointment
+                    </button>
+                  </div>
+                </div>
+              </form>
             </motion.div>
           </motion.div>
         )}

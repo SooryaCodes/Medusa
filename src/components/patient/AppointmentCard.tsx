@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, Map, Video, Stethoscope } from 'lucide-react';
+import { Calendar, Clock, Map, Stethoscope } from 'lucide-react';
 
 interface AppointmentCardProps {
   appointment: any;
@@ -11,10 +11,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment }) => {
       <div className="flex items-start justify-between">
         <div className="flex items-start">
           <div className="bg-blue-100 text-blue-800 h-12 w-12 rounded-full flex items-center justify-center mr-3">
-            {appointment.isVideo ? 
-              <Video className="h-5 w-5" /> : 
-              <Stethoscope className="h-5 w-5" />
-            }
+            <Stethoscope className="h-5 w-5" />
           </div>
           <div>
             <p className="font-semibold text-gray-900">{appointment.doctorName}</p>
@@ -37,26 +34,20 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment }) => {
             )}
           </div>
         </div>
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          appointment.isVideo
-            ? "bg-blue-100 text-blue-800 border border-blue-200"
-            : "bg-purple-100 text-purple-800 border border-purple-200"
-        }`}>
-          {appointment.isVideo ? 'Virtual' : 'In-Person'}
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+          In-Person Visit
         </span>
       </div>
       <div className="mt-3 flex space-x-2">
-        {appointment.isVideo && (
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm flex items-center">
-            <Video className="w-3.5 h-3.5 mr-1.5" />
-            Join Call
-          </button>
-        )}
+        <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm flex items-center">
+          <Calendar className="w-3.5 h-3.5 mr-1.5" />
+          Check In
+        </button>
         <button className="border border-blue-200 text-blue-700 px-3 py-1.5 rounded-md text-sm bg-white hover:bg-blue-50">
           Reschedule
         </button>
-        <button className="text-gray-600 px-3 py-1.5 rounded-md text-sm hover:bg-gray-50">
-          Cancel
+        <button className="text-gray-600 px-3 py-1.5 rounded-md text-sm hover:bg-gray-50 border border-gray-200">
+          Cancel Appointment
         </button>
       </div>
     </div>
