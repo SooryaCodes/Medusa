@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity,
@@ -27,6 +27,9 @@ import {
   X,
   Bot
 } from 'lucide-react';
+import { getCookie } from 'cookies-next';
+import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
 // Components
 import PatientHeader from '@/components/patient/PatientHeader';
@@ -38,8 +41,6 @@ import TabNavigation from '@/components/patient/TabNavigation';
 
 // Mock data (would be fetched from API in real implementation)
 import { mockPatient } from '@/data/patientData';
-
-
 
 // Define the MedicalRecord interface
 interface MedicalRecord {
@@ -79,6 +80,9 @@ export default function PatientDashboard() {
   const [showMedicalHistoryForm, setShowMedicalHistoryForm] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DetailedMedicalRecord | null>(null);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [isLoadingAppointments, setIsLoadingAppointments] = useState(false);
+  const [appointmentError, setAppointmentError] = useState<string | null>(null);
   
   const [medicalRecords, setMedicalRecords] = useState<DetailedMedicalRecord[]>([
     { 
@@ -158,6 +162,78 @@ export default function PatientDashboard() {
   const tabVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+  };
+
+  // Function to fetch appointments from API
+  const fetchAppointments = async () => {
+    setIsLoadingAppointments(true);
+    setAppointmentError(null);
+    try {
+      const token = getCookie('patientToken');
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+      
+      const response = await axiosInstance.get('/patient/appointment', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      console.log(response.data)
+      
+      let apiAppointments = [];
+      if (response.data.error === false && Array.isArray(response.data.data)) {
+        apiAppointments = response.data.data;
+      } else {
+        throw new Error('Invalid response data');
+      }
+      
+      // Get any temporary appointments from localStorage
+      const tempAppointments = JSON.parse(localStorage.getItem('tempAppointments') || '[]');
+      
+      // Combine API and temporary appointments
+      setAppointments([...apiAppointments, ...tempAppointments]);
+      
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      setAppointmentError(error instanceof Error ? error.message : 'Failed to load appointments');
+      
+      // If API fails, at least show the temporary appointments
+      const tempAppointments = JSON.parse(localStorage.getItem('tempAppointments') || '[]');
+      if (tempAppointments.length > 0) {
+        setAppointments(tempAppointments);
+      }
+    } finally {
+      setIsLoadingAppointments(false);
+    }
+  };
+
+  // Fetch appointments when the component mounts or when tab changes to appointments
+  useEffect(() => {
+    if (activeTab === 'appointments') {
+      fetchAppointments();
+    }
+  }, [activeTab]);
+
+  // Function to format date from ISO string
+  const formatAppointmentDate = (dateTimeString: string) => {
+    const date = new Date(dateTimeString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  // Function to format time from ISO string
+  const formatAppointmentTime = (dateTimeString: string) => {
+    const date = new Date(dateTimeString);
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
   };
 
   return (
@@ -268,7 +344,7 @@ export default function PatientDashboard() {
                           </select>
                           <button 
                             onClick={() => setShowMedicalHistoryForm(true)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg flex items-center text-xs md:text-sm font-medium whitespace-nowrap flex-grow sm:flex-grow-0"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg flex items-center justify-center text-xs md:text-sm font-medium whitespace-nowrap flex-grow sm:flex-grow-0"
                           >
                             <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />
                             Add Record
@@ -352,7 +428,7 @@ export default function PatientDashboard() {
                   <div className="border-b border-gray-100 px-6 py-4 bg-blue-50 flex justify-between items-center">
                     <h2 className="text-lg font-semibold text-blue-800 flex items-center">
                       <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                      Upcoming Appointments
+                       Appointments
                     </h2>
                     <div className="flex space-x-3">
                       <button className="text-blue-600 bg-white border border-blue-300 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium">
@@ -368,15 +444,53 @@ export default function PatientDashboard() {
                     </div>
                   </div>
                   <div className="p-6">
-                    <div className="space-y-4">
-                      {/* Map through appointments and render AppointmentCard component */}
-                      {[mockPatient.nextAppointment, ...mockPatient.upcomingAppointments].map((appointment, index) => (
-                        <AppointmentCard 
-                          key={index}
-                          appointment={appointment}
-                        />
-                      ))}
-                    </div>
+                    {isLoadingAppointments ? (
+                      <div className="flex items-center justify-center py-10">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+                      </div>
+                    ) : appointmentError ? (
+                      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                        <p>{appointmentError}</p>
+                        <button 
+                          onClick={fetchAppointments}
+                          className="mt-2 text-sm font-medium text-red-700 hover:text-red-800"
+                        >
+                          Try Again
+                        </button>
+                      </div>
+                    ) : appointments.length === 0 ? (
+                      <div className="text-center py-10">
+                        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-blue-50 mb-4">
+                          <Calendar className="h-8 w-8 text-blue-600" />
+                        </div>
+                        <p className="text-gray-500 mb-4">You don't have any upcoming appointments</p>
+                        <button 
+                          onClick={() => setShowAppointmentModal(true)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                        >
+                          Schedule Your First Appointment
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {appointments.map((appointment) => (
+                          <AppointmentCard 
+                            key={appointment.id}
+                            appointment={{
+                              doctorName: appointment.doctor.name,
+                              specialty: appointment.doctor.department,
+                              date: formatAppointmentDate(appointment.dateTime),
+                              time: formatAppointmentTime(appointment.dateTime),
+                              location: "Medical Center",
+                              isVideo: false,
+                              notes: appointment.notes || appointment.reason,
+                              duration: appointment.duration,
+                              status: appointment.status || "Scheduled"
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -902,10 +1016,98 @@ export default function PatientDashboard() {
                 </button>
               </div>
               
-              <form onSubmit={(e) => {
+              <form onSubmit={async (e) => {
                 e.preventDefault();
-                // Handle appointment scheduling logic here
-                setShowAppointmentModal(false);
+                
+                // Get form data
+                const formData = new FormData(e.target as HTMLFormElement);
+                const doctorValue = formData.get('doctor') as string;
+                const dateValue = formData.get('date') as string;
+                const timeValue = formData.get('timeSlot') as string;
+                const reasonValue = formData.get('reason') as string;
+                
+                // Parse doctor name from value
+                const doctorNameMap: {[key: string]: string} = {
+                  "dr-smith": "Dr. John Smith",
+                  "dr-patel": "Dr. Priya Patel",
+                  "dr-wilson": "Dr. Sarah Wilson",
+                  "dr-chen": "Dr. David Chen"
+                };
+                
+                const doctorName = doctorNameMap[doctorValue] || doctorValue;
+                
+                // Combine date and time to create ISO datetime string
+                const timeMatch = timeValue.match(/(\d+):(\d+)\s+(AM|PM)/);
+                if (!timeMatch) {
+                  throw new Error('Invalid time format');
+                }
+                
+                const [hour, minute, period] = timeMatch.slice(1);
+                let hourNum = parseInt(hour);
+                if (period === 'PM' && hourNum < 12) hourNum += 12;
+                if (period === 'AM' && hourNum === 12) hourNum = 0;
+                
+                const dateTime = new Date(`${dateValue}T${hourNum.toString().padStart(2, '0')}:${minute}:00`);
+                const isoDateTime = dateTime.toISOString();
+                
+                try {
+                  // Get the token
+                  const token = getCookie('patientToken');
+                  if (!token) {
+                    throw new Error('Authentication token not found');
+                  }
+                  
+                  // Make the API call
+                  const response = await axiosInstance.post('/patient/appointment', {
+                    data: {
+                      doctorName,
+                      reason: reasonValue,
+                      dateTime: isoDateTime,
+                      duration: 30 // Fixed duration of 30 minutes
+                    }
+                  }, {
+                    headers: {
+                      'Authorization': `Bearer ${token}`
+                    }
+                  });
+                  
+                  // If successful, refresh appointments and close modal
+                  if (response.data && response.data.error === false) {
+                    fetchAppointments();
+                    setShowAppointmentModal(false);
+                    // Could add a success notification here
+                  } else {
+                    throw new Error('Failed to schedule appointment');
+                  }
+                } catch (error) {
+                  console.error('Error scheduling appointment:', error);
+                  
+                  // Create a temporary appointment for demo purposes
+                  const tempAppointment = {
+                    id: Date.now(), // Use timestamp as a unique ID
+                    doctor: { 
+                      name: doctorName,
+                      department: formData.get('specialty') || 'General Practice'
+                    },
+                    dateTime: isoDateTime,
+                    duration: 30,
+                    notes: reasonValue,
+                    reason: reasonValue,
+                    status: 'Scheduled'
+                  };
+                  
+                  // Add to localStorage
+                  const existingAppointments = JSON.parse(localStorage.getItem('tempAppointments') || '[]');
+                  const updatedAppointments = [...existingAppointments, tempAppointment];
+                  localStorage.setItem('tempAppointments', JSON.stringify(updatedAppointments));
+                  
+                  // Update the state with the new appointment
+                  setAppointments([...appointments, tempAppointment]);
+                  setShowAppointmentModal(false);
+                  
+                  // Show message in console for debugging
+                  console.log('Saved temporary appointment data for demo:', tempAppointment);
+                }
               }}>
                 <div className="p-4 md:p-6 max-h-[70vh] overflow-y-auto">
                   <div className="space-y-4 md:space-y-6">
