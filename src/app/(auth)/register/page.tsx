@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Toaster } from "sonner";
 import { motion } from "framer-motion";
 import { Globe, Shield, Clock, Users, Zap, CheckCircle, Lock, ChevronRight } from "lucide-react";
+import axiosInstance from "@/lib/authAxios";
+import { setCookie } from "cookies-next";
 
 export default function RegisterPage() {
   const [step, setStep] = useState<1 | 2>(1);
@@ -15,6 +17,8 @@ export default function RegisterPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [activeFeature, setActiveFeature] = useState(0);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [receivedOtp, setReceivedOtp] = useState<string | null>(null);
 
   const features = [
     {
@@ -85,26 +89,69 @@ export default function RegisterPage() {
     }
   };
 
-  const verifyAadhaar = (e: React.FormEvent) => {
+  const verifyAadhaar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (aadhaarNumber.length !== 12 || !/^\d+$/.test(aadhaarNumber)) {
       toast.error("Please enter a valid 12-digit Aadhaar number.");
       return;
     }
 
-    toast.success("A verification code has been sent to your registered mobile number.");
-    setStep(2);
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post('/authenticate', {
+        aadharNumber: aadhaarNumber
+      });
+      console.log(response.data)
+      // Store the OTP for testing/debugging purposes
+      // In a real app, OTP would be sent directly to the user's phone
+      if (response.data.otp) {
+        setReceivedOtp(response.data.otp);
+        alert("Debug - OTP received:"+ response.data.otp);
+      }
+      
+      toast.success("A verification code has been sent to your registered mobile number.");
+      setStep(2);
+    } catch (error) {
+      console.error("Authentication error:", error);
+      toast.error("Failed to authenticate. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const verifyOtp = (e: React.FormEvent) => {
+  const verifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp.join("").length !== 6) {
+    const enteredOtp = otp.join("");
+    if (enteredOtp.length !== 6) {
       toast.error("Please enter a valid 6-digit OTP.");
       return;
     }
 
-    toast.success("You have successfully registered with Medusa.");
-    router.push("/dashboard");
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post('/verify-otp', {
+        aadharNumber:aadhaarNumber,
+        otp: enteredOtp
+      });
+      console.log(response.data)
+      if (response.data.token) {
+        // Store the JWT token in a cookie
+        setCookie('patientToken', response.data.token, {
+          maxAge: 30 * 24 * 60 * 60, // 30 days
+          path: '/'
+        });
+        
+        toast.success("You have successfully registered with Medusa.");
+        router.push("/patient/dashboard");
+      } else {
+        toast.error("Verification failed. Invalid OTP.");
+      }
+    } catch (error) {
+      console.error("OTP verification error:", error);
+      toast.error("Failed to verify OTP. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -298,9 +345,10 @@ export default function RegisterPage() {
                   <button 
                     type="submit" 
                     className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow transition-colors duration-200 flex items-center justify-center"
+                    disabled={isLoading}
                   >
-                    Continue
-                    <ChevronRight className="w-4 h-4 ml-1" />
+                    {isLoading ? "Processing..." : "Continue"}
+                    {!isLoading && <ChevronRight className="w-4 h-4 ml-1" />}
                   </button>
                   
                   <div className="text-center">
@@ -365,8 +413,9 @@ export default function RegisterPage() {
                   <button 
                     type="submit" 
                     className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow transition-colors duration-200"
+                    disabled={isLoading}
                   >
-                    Verify & Complete
+                    {isLoading ? "Verifying..." : "Verify & Complete"}
                   </button>
                   
                   <div className="text-center">

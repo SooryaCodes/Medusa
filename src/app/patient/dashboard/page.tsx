@@ -24,34 +24,22 @@ import {
   Stethoscope,
   Settings,
   ClipboardPlus,
-  X
+  X,
+  Bot
 } from 'lucide-react';
 
 // Components
 import PatientHeader from '@/components/patient/PatientHeader';
-import HealthStatusCard from '@/components/patient/HealthStatusCard';
 import AppointmentCard from '@/components/patient/AppointmentCard';
 import MedicationItem from '@/components/patient/MedicationItem';
-import VitalsDisplay from '@/components/patient/VitalsDisplay';
 import ChatInterface from '@/components/patient/ChatInterface';
 import DocumentUploader from '@/components/patient/DocumentUploader';
 import TabNavigation from '@/components/patient/TabNavigation';
-import MedicalHistoryForm from '@/components/patient/MedicalHistoryForm';
 
 // Mock data (would be fetched from API in real implementation)
 import { mockPatient } from '@/data/patientData';
 
-// Extend the Vital interface to include missing properties
-interface ExtendedVital {
-  heartRate: number;
-  heartRateStatus: 'normal' | 'elevated' | 'low';
-  bloodPressure: string;
-  bloodPressureStatus: 'normal' | 'elevated' | 'low';
-  glucoseLevel: string;
-  glucoseLevelStatus: 'normal' | 'elevated' | 'low';
-  cholesterol: string;
-  cholesterolStatus: 'normal' | 'elevated' | 'low';
-}
+
 
 // Define the MedicalRecord interface
 interface MedicalRecord {
@@ -87,7 +75,7 @@ interface DetailedMedicalRecord extends MedicalRecord {
 }
 
 export default function PatientDashboard() {
-  const [activeTab, setActiveTab] = useState('medical-history');
+  const [activeTab, setActiveTab] = useState('appointments');
   const [showMedicalHistoryForm, setShowMedicalHistoryForm] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<DetailedMedicalRecord | null>(null);
   
@@ -153,12 +141,12 @@ export default function PatientDashboard() {
   };
   
   const tabs = [
-    { id: 'medical-history', label: 'Medical History', icon: <ClipboardPlus className="w-4 h-4" /> },
-    { id: 'appointments', label: 'Appointments', icon: <Calendar className="w-4 h-4" /> },
-    { id: 'medications', label: 'Medications', icon: <Pill className="w-4 h-4" /> },
-    { id: 'documents', label: 'Documents', icon: <FileText className="w-4 h-4" /> },
-    { id: 'chat', label: 'Doctor Chat', icon: <MessageCircle className="w-4 h-4" /> },
-    { id: 'billing', label: 'Billing', icon: <CreditCard className="w-4 h-4" /> },
+    { id: 'appointments', label: 'Appointments', icon: <Calendar className="w-3 h-3 sm:w-4 sm:h-4" /> },
+    { id: 'medical-history', label: 'Medical History', icon: <ClipboardPlus className="w-3 h-3 sm:w-4 sm:h-4" /> },
+    { id: 'medications', label: 'Medications', icon: <Pill className="w-3 h-3 sm:w-4 sm:h-4" /> },
+    { id: 'documents', label: 'Documents', icon: <FileText className="w-3 h-3 sm:w-4 sm:h-4" /> },
+    { id: 'chat', label: 'Doctor Chat', icon: <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" /> },
+    { id: 'billing', label: 'Billing', icon: <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" /> },
   ];
 
   const handleTabChange = (tab: string) => {
@@ -175,54 +163,54 @@ export default function PatientDashboard() {
     <div className="min-h-screen bg-gray-50">
       <PatientHeader patient={mockPatient} />
       
-      {/* Improved Patient Greeting and Health Status Summary - Make responsive */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-6 md:py-8 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Improved Patient Greeting and Health Status Summary - More responsive */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-4 md:py-8 border-b">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="mb-4 md:mb-0">
-              <h1 className="text-2xl md:text-3xl font-bold">Good morning, {mockPatient.name}!</h1>
-              <p className="mt-1 md:mt-2 text-blue-100 text-sm md:text-base">
+              <h1 className="text-xl md:text-3xl font-bold">Good morning, {mockPatient.name}!</h1>
+              <p className="mt-1 md:mt-2 text-blue-100 text-xs md:text-base">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
               
               {mockPatient.nextAppointment && (
-                <div className="mt-3 md:mt-4 flex items-center bg-white/10 rounded-lg px-3 py-2 text-sm md:text-base backdrop-blur-sm">
-                  <Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0" />
+                <div className="mt-2 md:mt-4 flex items-center bg-white/10 rounded-lg px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-base backdrop-blur-sm">
+                  <Clock className="w-3.5 h-3.5 md:w-5 md:h-5 mr-1.5 md:mr-2 flex-shrink-0" />
                   <span className="line-clamp-2">Your next appointment with {mockPatient.nextAppointment.doctorName} is on {mockPatient.nextAppointment.date}</span>
                 </div>
               )}
             </div>
             
-            {/* Updated Health Status Card - Make responsive */}
+            {/* Updated Health Status Card - More responsive */}
             <div className="bg-white text-gray-900 rounded-xl shadow-lg p-3 md:p-4 w-full md:w-auto">
-              <div className="flex items-center mb-3 md:mb-4">
-                <Heart className="w-5 h-5 md:w-6 md:h-6 text-red-500 mr-2" />
-                <span className="text-base md:text-lg font-semibold">Your Health Status</span>
+              <div className="flex items-center mb-2 md:mb-4">
+                <Heart className="w-4 h-4 md:w-6 md:h-6 text-red-500 mr-1.5 md:mr-2" />
+                <span className="text-sm md:text-lg font-semibold">Your Health Status</span>
               </div>
               
-              <div className="flex flex-col gap-3 md:gap-4">
+              <div className="flex flex-col gap-2 md:gap-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm md:text-base text-gray-700">Overall Health:</span>
-                  <span className="px-2 md:px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs md:text-sm font-medium">
+                  <span className="text-xs md:text-base text-gray-700">Overall Health:</span>
+                  <span className="px-2 md:px-3 py-0.5 md:py-1 bg-green-100 text-green-800 rounded-full text-xs md:text-sm font-medium">
                     Good
                   </span>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm md:text-base text-gray-700">Risk Level:</span>
-                  <span className="px-2 md:px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs md:text-sm font-medium">
+                  <span className="text-xs md:text-base text-gray-700">Risk Level:</span>
+                  <span className="px-2 md:px-3 py-0.5 md:py-1 bg-amber-100 text-amber-800 rounded-full text-xs md:text-sm font-medium">
                     Moderate
                   </span>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-2 mt-1">
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 md:py-2 px-3 md:px-4 rounded-lg text-xs md:text-sm font-medium flex items-center justify-center">
-                    <AlertCircle className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
+                <div className="flex flex-col xs:flex-row gap-2 mt-1">
+                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-1 md:py-2 px-2 md:px-4 rounded-lg text-xs md:text-sm font-medium flex items-center justify-center">
+                    <AlertCircle className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-1.5" />
                     View Potential Risks
                   </button>
                   
-                  <button className="w-full bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 py-1.5 md:py-2 px-3 md:px-4 rounded-lg text-xs md:text-sm font-medium flex items-center justify-center">
-                    <Activity className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
+                  <button className="w-full bg-white border border-blue-300 text-blue-600 hover:bg-blue-50 py-1 md:py-2 px-2 md:px-4 rounded-lg text-xs md:text-sm font-medium flex items-center justify-center">
+                    <Activity className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-1.5" />
                     View Health Metrics
                   </button>
                 </div>
@@ -251,12 +239,12 @@ export default function PatientDashboard() {
             variants={tabVariants}
             className="mt-4 md:mt-6"
           >
-            {/* Updated Medical History Timeline - Make responsive */}
+            {/* Updated Medical History Timeline - Improved mobile view */}
             {activeTab === 'medical-history' && (
               <div className="space-y-4 md:space-y-6">
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-                  <div className="border-b border-gray-100 px-4 md:px-6 py-3 md:py-4 bg-blue-50">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="border-b border-gray-100 px-3 md:px-6 py-3 md:py-4 bg-blue-50">
+                    <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                       <h2 className="text-base md:text-lg font-semibold text-blue-800 flex items-center">
                         <ClipboardPlus className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600 flex-shrink-0" />
                         Medical History
@@ -270,19 +258,21 @@ export default function PatientDashboard() {
                           />
                           <Search className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400 absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2" />
                         </div>
-                        <select className="text-xs md:text-sm border border-gray-200 rounded-lg px-2 md:px-3 py-1.5 md:py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                          <option>All</option>
-                          <option>2023</option>
-                          <option>2022</option>
-                          <option>2021</option>
-                        </select>
-                        <button 
-                          onClick={() => setShowMedicalHistoryForm(true)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg flex items-center text-xs md:text-sm font-medium whitespace-nowrap"
-                        >
-                          <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />
-                          Add Record
-                        </button>
+                        <div className="flex gap-2 w-full sm:w-auto">
+                          <select className="text-xs md:text-sm border border-gray-200 rounded-lg px-2 md:px-3 py-1.5 md:py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-grow sm:flex-grow-0">
+                            <option>All</option>
+                            <option>2023</option>
+                            <option>2022</option>
+                            <option>2021</option>
+                          </select>
+                          <button 
+                            onClick={() => setShowMedicalHistoryForm(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg flex items-center text-xs md:text-sm font-medium whitespace-nowrap flex-grow sm:flex-grow-0"
+                          >
+                            <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1" />
+                            Add Record
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -479,11 +469,21 @@ export default function PatientDashboard() {
               <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 h-[70vh]">
                   <div className="border-b border-gray-100 px-6 py-4 bg-blue-50">
-                    <h2 className="text-lg font-semibold text-blue-800 flex items-center">
-                      <MessageCircle className="w-5 h-5 mr-2 text-blue-600" />
-                      Doctor Chat
-                    </h2>
-                              </div>
+                    <div className="flex items-center justify-between p-3 sm:p-4 border-b bg-white">
+                      <div className="flex items-center">
+                        <div className="h-9 w-9 rounded-full bg-blue-600 mr-3 flex items-center justify-center text-white font-semibold">
+                          <Bot className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">HealthBot AI</p>
+                          <p className="text-xs text-green-600 flex items-center">
+                            <span className="h-2 w-2 bg-green-500 rounded-full mr-1.5"></span>
+                            Online
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <ChatInterface />
                 </div>
               </div>
@@ -569,14 +569,14 @@ export default function PatientDashboard() {
         </AnimatePresence>
       </main>
 
-      {/* Medical History Form Modal - Updated to match record contents */}
+      {/* Medical History Form Modal - Improved responsiveness */}
       <AnimatePresence>
         {showMedicalHistoryForm && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 md:p-4"
             onClick={() => setShowMedicalHistoryForm(false)}
           >
             <motion.div
@@ -586,16 +586,16 @@ export default function PatientDashboard() {
               className="bg-white rounded-xl shadow-xl w-full max-w-3xl overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center border-b p-4 bg-blue-50">
-                <h2 className="text-lg font-semibold text-blue-800 flex items-center">
-                  <ClipboardPlus className="w-5 h-5 mr-2 text-blue-600" />
+              <div className="flex justify-between items-center border-b p-3 md:p-4 bg-blue-50">
+                <h2 className="text-base md:text-lg font-semibold text-blue-800 flex items-center">
+                  <ClipboardPlus className="w-4 h-4 md:w-5 md:h-5 mr-1.5 md:mr-2 text-blue-600" />
                   Add Medical Record
                 </h2>
                 <button 
                   onClick={() => setShowMedicalHistoryForm(false)}
-                  className="p-2 rounded-full hover:bg-blue-100"
+                  className="p-1.5 md:p-2 rounded-full hover:bg-blue-100"
                 >
-                  <X className="w-5 h-5 text-gray-500" />
+                  <X className="w-4 h-4 md:w-5 md:h-5 text-gray-500" />
                 </button>
               </div>
               
@@ -724,17 +724,17 @@ export default function PatientDashboard() {
                   </div>
                 </div>
                 
-                <div className="border-t p-4 flex justify-end space-x-3">
+                <div className="border-t p-3 md:p-4 flex justify-end space-x-2 md:space-x-3">
                   <button 
                     type="button"
                     onClick={() => setShowMedicalHistoryForm(false)}
-                    className="px-3 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+                    className="px-2.5 md:px-4 py-1.5 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm text-gray-700 hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit"
-                    className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                    className="px-2.5 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs md:text-sm"
                   >
                     Save Record
                   </button>
@@ -752,7 +752,7 @@ export default function PatientDashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-3 md:px-4"
           >
             <motion.div
               initial={{ y: 50, opacity: 0 }}
@@ -760,23 +760,23 @@ export default function PatientDashboard() {
               exit={{ y: 50, opacity: 0 }}
               className="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             >
-              <div className="border-b border-gray-100 px-6 py-4 bg-blue-50 flex justify-between items-center sticky top-0 z-10">
+              <div className="border-b border-gray-100 px-4 md:px-6 py-3 md:py-4 bg-blue-50 flex justify-between items-center sticky top-0 z-10">
                 <div className="flex items-center">
-                  <div className="bg-blue-600 text-white p-2 rounded-lg mr-3">
-                    <FileText className="w-5 h-5" />
+                  <div className="bg-blue-600 text-white p-1.5 md:p-2 rounded-lg mr-2 md:mr-3">
+                    <FileText className="w-4 h-4 md:w-5 md:h-5" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-blue-800 flex items-center">
+                    <h2 className="text-base md:text-lg font-semibold text-blue-800 flex items-center">
                       Medical Record Details
                     </h2>
-                    <p className="text-sm text-blue-600">Final</p>
+                    <p className="text-xs md:text-sm text-blue-600">Final</p>
                   </div>
                 </div>
                 <button 
                   onClick={closeDetailedView}
-                  className="p-2 hover:bg-blue-100 rounded-full text-gray-500 hover:text-gray-700"
+                  className="p-1.5 md:p-2 hover:bg-blue-100 rounded-full text-gray-500 hover:text-gray-700"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4 md:w-5 md:h-5" />
                 </button>
               </div>
               
